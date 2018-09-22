@@ -1,16 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Pane prefHeight="200.0" prefWidth="200.0">
+      <Pane layoutX="-32.0" layoutY="14.0" prefHeight="407.0" prefWidth="569.0">
          <children>
-            <Button layoutX="56.0" layoutY="100.0" mnemonicParsing="false" text="Button" />
+            <Button layoutX="58.0" layoutY="365.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="77.0" stylesheets="@application/application.css" text="Add Song" />
+            <TableView layoutX="55.0" layoutY="84.0" prefHeight="271.0" prefWidth="280.0">
+              <columns>
+                <TableColumn prefWidth="141.0" text="Title" />
+                <TableColumn prefWidth="163.0" text="Artist" />
+              </columns>
+            </TableView>
+            <Label layoutX="55.0" layoutY="60.0" prefHeight="17.0" prefWidth="146.0" text="Song List">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="380.0" layoutY="60.0" prefHeight="17.0" prefWidth="146.0" text="Details">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Button layoutX="208.0" layoutY="365.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="55.0" stylesheets="@application/application.css" text="Edit" />
+            <Button layoutX="268.0" layoutY="365.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="66.0" style="-fx-background-color: #f7574f; -fx-text-fill: white;" stylesheets="@application/application.css" text="Remove" />
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#23e429" height="53.0" layoutX="32.0" layoutY="-15.0" stroke="TRANSPARENT" strokeType="INSIDE" strokeWidth="0.0" width="537.0" />
          </children>
       </Pane>
    </children>
