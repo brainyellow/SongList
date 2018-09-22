@@ -19,7 +19,7 @@
                 <TableColumn prefWidth="163.0" text="Artist" />
               </columns>
             </TableView>
-            <Label layoutX="55.0" layoutY="60.0" prefHeight="17.0" prefWidth="146.0" text="Song List" textFill="WHITE">
+            <Label layoutX="55.0" layoutY="60.0" prefHeight="17.0" prefWidth="146.0" text="Songs" textFill="WHITE">
                <font>
                   <Font size="14.0" />
                </font>
@@ -31,7 +31,6 @@
             </Label>
             <Button layoutX="208.0" layoutY="365.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="55.0" stylesheets="@application/application.css" text="Edit" />
             <Button layoutX="268.0" layoutY="365.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="66.0" style="-fx-background-color: #f7574f; -fx-text-fill: white;" stylesheets="@application/application.css" text="Remove" />
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#23e429" height="53.0" layoutY="-3.0" stroke="TRANSPARENT" strokeType="INSIDE" strokeWidth="0.0" width="537.0" />
          </children>
       </Pane>
    </children>
