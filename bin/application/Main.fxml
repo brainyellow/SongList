@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<Pane prefHeight="421.0" prefWidth="579.0" style="-fx-background-color: #222;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
+   <children>
+      <Button layoutX="38.0" layoutY="365.0" mnemonicParsing="false" onAction="#AddButtonClick" prefHeight="25.0" prefWidth="77.0" stylesheets="@application.css" text="Add Song" />
+      <TableView layoutX="35.0" layoutY="84.0" prefHeight="271.0" prefWidth="280.0" style="-fx-background-color: #111;">
+        <columns>
+          <TableColumn prefWidth="141.0" text="Title" />
+          <TableColumn prefWidth="163.0" text="Artist" />
+        </columns>
+      </TableView>
+      <Label layoutX="35.0" layoutY="60.0" prefHeight="17.0" prefWidth="146.0" text="Songs" textFill="WHITE">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="347.0" layoutY="60.0" prefHeight="17.0" prefWidth="146.0" text="Details" textFill="WHITE">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <Button layoutX="501.0" layoutY="112.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="44.0" stylesheets="@application.css" text="Edit" />
+      <Button layoutX="248.0" layoutY="365.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="66.0" style="-fx-background-color: #f7574f; -fx-text-fill: white;" text="Remove" />
+      <TextField layoutX="346.0" layoutY="112.0" />
+      <Label layoutX="347.0" layoutY="95.0" text="Title" textFill="WHITE" />
+      <Label layoutX="347.0" layoutY="165.0" text="Artist" textFill="WHITE" />
+      <TextField layoutX="346.0" layoutY="182.0" />
+      <TextField layoutX="346.0" layoutY="252.0" />
+      <Label layoutX="347.0" layoutY="235.0" text="Album" textFill="WHITE" />
+      <Label layoutX="347.0" layoutY="305.0" text="Year" textFill="WHITE" />
+      <TextField layoutX="346.0" layoutY="322.0" />
+      <Button layoutX="501.0" layoutY="182.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="44.0" stylesheets="@application.css" text="Edit" />
+      <Button layoutX="501.0" layoutY="252.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="44.0" stylesheets="@application.css" text="Edit" />
+      <Button layoutX="501.0" layoutY="322.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="44.0" stylesheets="@application.css" text="Edit" />
+   </children>
+</Pane>
