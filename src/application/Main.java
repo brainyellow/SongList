@@ -1,3 +1,6 @@
+// Tyler Latawiec
+// Brian Huang
+
 package application;
 	
 import javafx.application.Application;
