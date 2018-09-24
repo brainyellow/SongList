@@ -6,12 +6,10 @@ public class Song{
 
     private String title, artist, album, year;
 
-    public Song(String newTitle, String newArtist, String newYear, String newAlbum)
+    public Song(String newTitle, String newArtist)
     {
         this.title = newTitle;
         this.artist = newArtist;
-        this.year = newYear;
-        this.album = newAlbum;
     }
 
     public String getTitle(){

@@ -10,9 +10,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 
-
-
-
 public class MainController{
     @FXML public TextField titleField;
     @FXML public TextField artistField;
@@ -26,7 +23,8 @@ public class MainController{
     @FXML TableColumn<Song, String> colAlbum;
 
 
-
+    private Song current;
+    private Song songHolder;
     private String title, artist, album, year;
 
     ObservableList<Song> songs = FXCollections.observableArrayList();
@@ -45,28 +43,80 @@ public class MainController{
         colAlbum.setCellValueFactory(
             new PropertyValueFactory<Song,String>("album")
         );
+
+        songTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                current = newSelection;
+                titleField.setText(current.getTitle());
+                artistField.setText(current.getArtist());
+                yearField.setText(current.getYear());
+                albumField.setText(current.getAlbum());
+            }
+        });
     }
-
-
-
 
     public void addSong(ActionEvent e){
-        Song songHolder = new Song(titleField.getText(), artistField.getText(), yearField.getText(), albumField.getText());
-        System.out.println(songHolder.getTitle());
+        if(titleField.getText() != null || artistField.getText() != null)
+        {
+            songHolder = new Song(titleField.getText(), artistField.getText());
+            if(albumField.getText() != null)
+            {
+                songHolder.setAlbum(albumField.getText());
+            }
+            if(yearField.getText() != null)
+            {
+                if(isNum(yearField.getText()))
+                    songHolder.setYear(yearField.getText());
+                else
+                    System.out.println("invalid year");//error
+            } 
+        }
+        else
+        {
+            //error message : no title or artist
+        }
         songs.add(songHolder);
         songTable.setItems(songs);
-
-        
-
+        clearFields();
     }
     public void updateSong(ActionEvent e){
-        
+
+        current.setTitle(titleField.getText());
+        current.setArtist(artistField.getText());
+        if(isNum(yearField.getText()))
+            current.setYear(yearField.getText());
+        else
+            System.out.println("invalid year");
+        current.setAlbum(albumField.getText());
+        songTable.setItems(songs);
+        songTable.refresh();
     }
 
     public void removeSong(ActionEvent e){
-        
+        songs.remove(current);
+        songTable.setItems(songs);
+        songTable.refresh();
+        clearFields();
     }
 
+    private void clearFields(){
+        titleField.clear();
+        artistField.clear();
+        yearField.clear();
+        albumField.clear();
+    }
 
-
+    private boolean isNum(String str)
+    {   
+        try  
+        {  
+            Integer.parseInt(str);      //testing if number
+            return true;
+        }  
+        catch(NumberFormatException nfe)  
+        {  
+            // invalid year
+            return false;
+        }  
+    }
 }

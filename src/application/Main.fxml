@@ -18,8 +18,8 @@
       <Label layoutX="31.0" layoutY="32.0" text="Song List" textFill="WHITE" />
       <TextField fx:id="titleField" layoutX="43.0" layoutY="334.0" prefHeight="25.0" prefWidth="131.0" />
       <TextField fx:id="artistField" layoutX="43.0" layoutY="379.0" prefHeight="25.0" prefWidth="131.0" />
-      <TextField fx:id="albumField" layoutX="196.0" layoutY="379.0" prefHeight="25.0" prefWidth="131.0" />
       <TextField fx:id="yearField" layoutX="196.0" layoutY="334.0" prefHeight="25.0" prefWidth="131.0" />
+      <TextField fx:id="albumField" layoutX="196.0" layoutY="379.0" prefHeight="25.0" prefWidth="131.0" />
       <Button layoutX="444.0" layoutY="267.0" mnemonicParsing="false" onAction="#removeSong" prefHeight="25.0" prefWidth="108.0" style="-fx-background-color: #f7574f; -fx-text-fill: white;" text="Remove" />
       <Button layoutX="444.0" layoutY="377.0" mnemonicParsing="false" onAction="#updateSong" prefHeight="25.0" prefWidth="108.0" stylesheets="@application.css" text="Update Info" />
       <Button layoutX="444.0" layoutY="333.0" mnemonicParsing="false" onAction="#addSong" prefHeight="25.0" prefWidth="108.0" stylesheets="@application.css" text="Add Song" />
