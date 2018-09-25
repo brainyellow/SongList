@@ -6,10 +6,10 @@ public class Song{
 
     private String title, artist, album, year;
 
-    public Song(String newTitle, String newArtist)
+    public Song(String title, String artist)
     {
-        this.title = newTitle;
-        this.artist = newArtist;
+        this.title = title;
+        this.artist = artist;
     }
 
     public String getTitle(){
@@ -26,16 +26,16 @@ public class Song{
     }
 
 
-    public void setTitle(String newTitle){
-        this.title = newTitle;
+    public void setTitle(String title){
+        this.title = title;
     }
-    public void setArtist(String newArtist){
-        this.artist = newArtist;
+    public void setArtist(String artist){
+        this.artist = artist;
     }
-    public void setYear(String newYear){
-        this.year = newYear;
+    public void setYear(String year){
+        this.year = year;
     }
-    public void setAlbum(String newAlbum){
-        this.album = newAlbum;
+    public void setAlbum(String album){
+        this.album = album;
     }
 }

@@ -1,6 +1,9 @@
 package application;
 
 import javafx.scene.control.TableColumn;
+
+import com.google.gson.Gson;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -31,6 +34,8 @@ public class MainController{
 
     @FXML
     public void initialize() {
+    	
+    	// setting correct value types of the columns
         colTitle.setCellValueFactory(
             new PropertyValueFactory<Song,String>("title")
         );
@@ -44,6 +49,7 @@ public class MainController{
             new PropertyValueFactory<Song,String>("album")
         );
 
+        // Listener for Table Selections, when a row in the table is selected, the song fields are updated
         songTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 current = newSelection;
@@ -59,6 +65,8 @@ public class MainController{
         if(titleField.getText() != null || artistField.getText() != null)
         {
             songHolder = new Song(titleField.getText(), artistField.getText());
+            
+            
             if(albumField.getText() != null)
             {
                 songHolder.setAlbum(albumField.getText());
@@ -75,9 +83,17 @@ public class MainController{
         {
             //error message : no title or artist
         }
+        
+        
+        
+        
         songs.add(songHolder);
         songTable.setItems(songs);
         clearFields();
+        
+        Gson gson = new Gson();
+        String jsonText = gson.toJson(songs);
+        System.out.println(jsonText);
     }
     public void updateSong(ActionEvent e){
 
@@ -119,4 +135,6 @@ public class MainController{
             return false;
         }  
     }
+    
+    
 }

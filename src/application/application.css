@@ -1,5 +1,61 @@
 /* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
 
+.table-view{
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-view .column-header-background{
+    -fx-background-color: #2c2c2c;
+}
+
+.table-view .column-header-background .label{
+
+    -fx-text-fill: white;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+}
+
+.table-view .table-cell{
+    -fx-text-fill: white;
+}
+
+.table-view .table-row-cell{
+    -fx-border-width: 1;
+      
+}
+
+.table-row-cell{
+    -fx-background-color: -fx-table-cell-border-color, #181818;
+}
+
+.table-row-cell:odd{
+    -fx-background-color: -fx-table-cell-border-color, #1f1f1f;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #0b324e;
+}
+
+
+.table-view .scroll-bar:horizontal .increment-arrow,
+.table-view .scroll-bar:horizontal .decrement-arrow,
+.table-view .scroll-bar:horizontal .increment-button,
+.table-view .scroll-bar:horizontal .decrement-button {
+    -fx-padding:0;
+}
+
 .button{
-	
+	-fx-background-color: transparent;
+	-fx-border-radius: 5px;
+	-fx-border-color: black;
+}
+
+
+.text-field{
+	-fx-background-color: #333;
+	-fx-border-radius: 0px;
+	-fx-border-style: none;
+	-fx-text-fill: #FFF;
 }
