@@ -1,5 +1,6 @@
 package application;
 
+import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 
 import com.google.gson.Gson;
@@ -7,10 +8,13 @@ import com.google.gson.Gson;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.shape.Rectangle;
 
 
 public class MainController{
@@ -24,7 +28,10 @@ public class MainController{
     @FXML TableColumn<Song, String> colArtist;
     @FXML TableColumn<Song, String> colYear;
     @FXML TableColumn<Song, String> colAlbum;
+    
+    @FXML Rectangle topBar;
 
+    @FXML Scene scene;
 
     private Song current;
     private Song songHolder;
@@ -62,7 +69,7 @@ public class MainController{
     }
 
     public void addSong(ActionEvent e){
-        if(titleField.getText() != null || artistField.getText() != null)
+        if(titleField.getText() != null && artistField.getText() != null)
         {
             songHolder = new Song(titleField.getText(), artistField.getText());
             
@@ -137,6 +144,6 @@ public class MainController{
             return false;
         }  
     }
-    
-    
+
+   
 }
