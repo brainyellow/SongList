@@ -99,10 +99,12 @@ public class MainController{
 
         current.setTitle(titleField.getText());
         current.setArtist(artistField.getText());
+        
         if(isNum(yearField.getText()))
             current.setYear(yearField.getText());
         else
             System.out.println("invalid year");
+        
         current.setAlbum(albumField.getText());
         songTable.setItems(songs);
         songTable.refresh();
@@ -131,7 +133,7 @@ public class MainController{
         }  
         catch(NumberFormatException nfe)  
         {  
-            // invalid year
+            // invalid year/num
             return false;
         }  
     }
