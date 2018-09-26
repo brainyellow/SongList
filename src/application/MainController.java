@@ -56,6 +56,11 @@ public class MainController {
     //Used for adding songs/checking for dupicates
     private Song current;
 
+    // controls used for animations
+    private TranslateTransition tRect;
+    private TranslateTransition tText;
+    private Timeline playtime;
+
 
     @FXML
     public void initialize() {
@@ -76,12 +81,35 @@ public class MainController {
             }
         });
         
+        // Read from JSON and sort songs in table
         ReadFromJSON();
         songTable.setItems(songs);
         songTable.refresh();
         songTable.getSortOrder().add(colTitle);
         songTable.getSortOrder().add(colArtist);
         songTable.getSelectionModel().selectFirst();
+
+        // Initialize notification animations
+        tRect = new TranslateTransition(Duration.millis(600), notifRectangle);
+        tRect.setFromY(0);
+        tRect.setToY(30);
+        tRect.setCycleCount(2);
+        tRect.setAutoReverse(true);
+        tText = new TranslateTransition(Duration.millis(600), notifText);
+        tText.setFromY(0);
+        tText.setToY(30);
+        tText.setCycleCount(2);
+        tText.setAutoReverse(true);
+        
+        // Timeline for timing of drop down notification 
+        playtime = new Timeline(
+        	    new KeyFrame(Duration.seconds(0), event -> tRect.play()),
+        	    new KeyFrame(Duration.seconds(0), event -> tText.play()),
+        	    new KeyFrame(Duration.seconds(.6), event -> tRect.pause()), // Rectangle and label will stop at bottom of drop
+        	    new KeyFrame(Duration.seconds(.6), event -> tText.pause()),
+        	    new KeyFrame(Duration.seconds(3), event -> tRect.play()),   // Rectangle and label will rise to top
+        	    new KeyFrame(Duration.seconds(3), event -> tText.play())
+        	);
 
     }
     
@@ -100,7 +128,7 @@ public class MainController {
                     System.out.println("invalid year XD!!!!!");// error
             }
         } else {
-            // error message : no title or artist
+            Notification("No Title or Artist entered", Color.web("#eda634"));
         }
 
         if (!isDuplicate(current)) {
@@ -115,6 +143,9 @@ public class MainController {
             System.out.println(jsonText);
             WriteToJSON();
             Notification("Song Added", Color.web("#10d354"));
+        }
+        else{
+            Notification("Song is already in your library", Color.web("#eda634"));
         }
     }
     // updates currently selected song
@@ -141,8 +172,12 @@ public class MainController {
             songTable.getSortOrder().add(colArtist);
             
         }
+        else{
+            Notification("Cannot Update, song is already in your library", Color.web("#eda634"));
+        }
         songTable.refresh();
         WriteToJSON();
+        
     }
 
     // removes song from list
@@ -185,7 +220,7 @@ public class MainController {
     public void WriteToJSON(){
 
     	try (Writer writer = new FileWriter("Songs.json")) {
-    		Gson gson = new GsonBuilder().create();
+    		Gson gson = new GsonBuilder().setPrettyPrinting().create();
     		gson.toJson(songs, writer);
     	}
     	catch(Exception e){
@@ -213,42 +248,13 @@ public class MainController {
 
 
     //Error animation
-    public void Notification(String msg, Color color){
-    	
-    	
-    	
-    	notifRectangle.setFill(color);
-    	notifText.setText(msg);
-    	
-    	
-        TranslateTransition tRect = new TranslateTransition(Duration.millis(1000), notifRectangle);
-        tRect.setFromY(0);
-        tRect.setToY(41);
-        tRect.setCycleCount(2);
-        tRect.setAutoReverse(true);
-        
-        TranslateTransition tText = new TranslateTransition(Duration.millis(1000), notifText);
-        tText.setFromY(-41);
-        tText.setToY(0);
-        tText.setCycleCount(2);
-        tText.setAutoReverse(true);
-        
-        
-        Timeline playtime = new Timeline(
-        	    new KeyFrame(Duration.seconds(0), event -> tRect.play()),
-        	    new KeyFrame(Duration.seconds(0), event -> tText.play()),
-        	    new KeyFrame(Duration.seconds(1), event -> tRect.pause()),
-        	    new KeyFrame(Duration.seconds(1), event -> tText.pause()),
-        	    new KeyFrame(Duration.seconds(4), event -> tRect.play()),
-        	    new KeyFrame(Duration.seconds(4), event -> tText.play())
-        	);
-        	playtime.playFromStart();
-        	
- 
-        //tRect.play();
-        //tText.play();
-        
-        
+    public void Notification(String msg, Color color) {
 
+        notifRectangle.setFill(color);
+        notifText.setText(msg);
+
+        tRect.stop();
+        tText.stop();
+        playtime.playFromStart();
     }
 }
