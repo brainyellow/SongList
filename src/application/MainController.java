@@ -115,37 +115,37 @@ public class MainController {
     
     // adds song to list
     public void addSong(ActionEvent e) {
-        if (titleField.getText() != null && artistField.getText() != null) {
+        if (!titleField.getText().isEmpty() && !artistField.getText().isEmpty()) {
             current = new Song(titleField.getText(), artistField.getText());
 
-            if (albumField.getText() != null) {
+            if (!albumField.getText().isEmpty()) {
                 current.setAlbum(albumField.getText());
             }
-            if (yearField.getText() != null) {
+            if (!yearField.getText().isEmpty()) {
                 if (isNum(yearField.getText()))
-                current.setYear(yearField.getText());
+                    current.setYear(yearField.getText());
                 else
                     System.out.println("invalid year XD!!!!!");// error
             }
-        } else {
-            Notification("No Title or Artist entered", Color.web("#eda634"));
-        }
-
-        if (!isDuplicate(current)) {
-            songs.add(current);
-            songTable.setItems(songs);
-            songTable.getSortOrder().add(colTitle);
-            songTable.getSortOrder().add(colArtist);
-            clearFields();
-
-            Gson gson = new Gson();
-            String jsonText = gson.toJson(songs);
-            System.out.println(jsonText);
-            WriteToJSON();
-            Notification("Song Added", Color.web("#10d354"));
-        }
+            if (!isDuplicate(current)) {
+                songs.add(current);
+                songTable.setItems(songs);
+                songTable.getSortOrder().add(colTitle);
+                songTable.getSortOrder().add(colArtist);
+                clearFields();
+    
+                Gson gson = new Gson();
+                String jsonText = gson.toJson(songs);
+                System.out.println(jsonText);
+                WriteToJSON();
+                Notification("Song Added", Color.web("#10d354"));
+            }
+            else{
+                Notification("Song is already in your library", Color.web("#eda634"));
+            }
+        } 
         else{
-            Notification("Song is already in your library", Color.web("#eda634"));
+            Notification("No Title or Artist entered", Color.web("#eda634"));
         }
     }
     // updates currently selected song
@@ -155,29 +155,46 @@ public class MainController {
         Song updatedSong = new Song(titleField.getText(), artistField.getText());
 
         // It is then checked if it is a duplicate, if not, it will proceed the update
-        if (!isDuplicate(updatedSong)) {
+        if (!isDuplicate(updatedSong) || (updatedSong.getTitle().equalsIgnoreCase(current.getTitle()) && updatedSong.getArtist().equalsIgnoreCase(current.getArtist()))) {
 
             current.setTitle(titleField.getText());
             current.setArtist(artistField.getText());
-
             current.setAlbum(albumField.getText());
 
-            if (isNum(yearField.getText()))
-            current.setYear(yearField.getText());
-            else
-                System.out.println("invalid year LOL!");
+            if (isNum(yearField.getText())){
 
-            songTable.setItems(songs);
-            songTable.getSortOrder().add(colTitle);
-            songTable.getSortOrder().add(colArtist);
-            
+                current.setYear(yearField.getText());
+                songTable.setItems(songs);
+                songTable.getSortOrder().add(colTitle);
+                songTable.getSortOrder().add(colArtist);
+                
+                songTable.refresh();
+                WriteToJSON();
+                Notification("Song details Updated", Color.web("#10d354"));
+            }
+            else if(current.getYear().isEmpty()){
+
+                System.out.println("invalid year LOL!");
+                yearField.setText(current.getYear());
+                Notification("Invalid year", Color.web("#eda634"));
+            }
+            else{
+                yearField.clear();
+                current.setYear("");
+                songTable.setItems(songs);
+                songTable.getSortOrder().add(colTitle);
+                songTable.getSortOrder().add(colArtist);
+                
+                songTable.refresh();
+                WriteToJSON();
+                Notification("Song details Updated", Color.web("#10d354"));
+            }
+                
+
         }
         else{
             Notification("Cannot Update, song is already in your library", Color.web("#eda634"));
         }
-        songTable.refresh();
-        WriteToJSON();
-        
     }
 
     // removes song from list
