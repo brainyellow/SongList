@@ -2,15 +2,26 @@
 // Brian Huang
 package application;
 
-import javafx.scene.Scene;
-import javafx.scene.control.TableColumn;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.Arrays;
+
+import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonWriter;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -62,6 +73,10 @@ public class MainController {
                 albumField.setText(current.getAlbum());
             }
         });
+
+        ReadFromJSON();
+        songTable.setItems(songs);
+        songTable.refresh();
     }
     
     // adds song to list
@@ -76,7 +91,7 @@ public class MainController {
                 if (isNum(yearField.getText()))
                 current.setYear(yearField.getText());
                 else
-                    System.out.println("invalid year");// error
+                    System.out.println("invalid year XD!!!!!");// error
             }
         } else {
             // error message : no title or artist
@@ -90,6 +105,7 @@ public class MainController {
             Gson gson = new Gson();
             String jsonText = gson.toJson(songs);
             System.out.println(jsonText);
+            WriteToJSON();
         }
     }
     // updates currently selected song
@@ -109,12 +125,13 @@ public class MainController {
             if (isNum(yearField.getText()))
             current.setYear(yearField.getText());
             else
-                System.out.println("invalid year");
+                System.out.println("invalid year LOL!");
 
             songTable.setItems(songs);
             
         }
         songTable.refresh();
+        WriteToJSON();
     }
 
     // removes song from list
@@ -123,6 +140,7 @@ public class MainController {
         songTable.setItems(songs);
         songTable.refresh();
         clearFields();
+        WriteToJSON();
     }
 
     // clears text fields
@@ -152,5 +170,28 @@ public class MainController {
         }
         return false;
     }
+    
+    public void WriteToJSON(){
 
+    	try (Writer writer = new FileWriter("Songs.json")) {
+    		Gson gson = new GsonBuilder().create();
+    		gson.toJson(songs, writer);
+    	}
+    	catch(Exception e){
+    		System.out.println("Could not write JSON LOL!");
+    	}
+
+    }
+
+    public void ReadFromJSON(){
+        try(Reader reader = new FileReader("Songs.json")){
+            Song[] listofSongs = new Gson().fromJson("Songs.json", Song[].class);
+            ObservableList<Song> asList = FXCollections.observableArrayList(listofSongs);
+            songs = asList;
+            System.out.println("GAY LOL!" + songs);
+        }
+        catch(Exception noFile){
+            System.out.println(noFile);
+        }
+    }
 }
