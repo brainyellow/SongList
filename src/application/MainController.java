@@ -15,6 +15,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonWriter;
 
 import javafx.collections.FXCollections;
@@ -73,10 +74,14 @@ public class MainController {
                 albumField.setText(current.getAlbum());
             }
         });
-
+        
         ReadFromJSON();
         songTable.setItems(songs);
         songTable.refresh();
+        songTable.getSortOrder().add(colTitle);
+        songTable.getSortOrder().add(colArtist);
+        songTable.getSelectionModel().selectFirst();
+
     }
     
     // adds song to list
@@ -100,6 +105,8 @@ public class MainController {
         if (!isDuplicate(current)) {
             songs.add(current);
             songTable.setItems(songs);
+            songTable.getSortOrder().add(colTitle);
+            songTable.getSortOrder().add(colArtist);
             clearFields();
 
             Gson gson = new Gson();
@@ -128,6 +135,8 @@ public class MainController {
                 System.out.println("invalid year LOL!");
 
             songTable.setItems(songs);
+            songTable.getSortOrder().add(colTitle);
+            songTable.getSortOrder().add(colArtist);
             
         }
         songTable.refresh();
@@ -185,10 +194,12 @@ public class MainController {
 
     public void ReadFromJSON(){
         try(Reader reader = new FileReader("Songs.json")){
-            Song[] listofSongs = new Gson().fromJson("Songs.json", Song[].class);
-            ObservableList<Song> asList = FXCollections.observableArrayList(listofSongs);
+            List<Song> listOfSongs;
+
+            Gson gson = new Gson();
+            listOfSongs = gson.fromJson(reader, new TypeToken<List<Song>>(){}.getType());
+            ObservableList<Song> asList = FXCollections.observableArrayList(listOfSongs);
             songs = asList;
-            System.out.println("GAY LOL!" + songs);
         }
         catch(Exception noFile){
             System.out.println(noFile);
