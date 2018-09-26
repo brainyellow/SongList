@@ -4,29 +4,28 @@ package application;
 
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.Arrays;
-
 import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonWriter;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
+import javafx.animation.*;
+
 
 public class MainController {
     @FXML
@@ -46,7 +45,9 @@ public class MainController {
     private TableColumn<Song, String> colArtist;
 
     @FXML
-    private Rectangle topBar;
+    private Rectangle notifRectangle;
+    @FXML
+    private Label notifText;
 
     
     // List of songs
@@ -113,6 +114,7 @@ public class MainController {
             String jsonText = gson.toJson(songs);
             System.out.println(jsonText);
             WriteToJSON();
+            Notification("Song Added", Color.web("#10d354"));
         }
     }
     // updates currently selected song
@@ -204,5 +206,49 @@ public class MainController {
         catch(Exception noFile){
             System.out.println(noFile);
         }
+    }
+
+
+
+
+
+    //Error animation
+    public void Notification(String msg, Color color){
+    	
+    	
+    	
+    	notifRectangle.setFill(color);
+    	notifText.setText(msg);
+    	
+    	
+        TranslateTransition tRect = new TranslateTransition(Duration.millis(1000), notifRectangle);
+        tRect.setFromY(0);
+        tRect.setToY(41);
+        tRect.setCycleCount(2);
+        tRect.setAutoReverse(true);
+        
+        TranslateTransition tText = new TranslateTransition(Duration.millis(1000), notifText);
+        tText.setFromY(-41);
+        tText.setToY(0);
+        tText.setCycleCount(2);
+        tText.setAutoReverse(true);
+        
+        
+        Timeline playtime = new Timeline(
+        	    new KeyFrame(Duration.seconds(0), event -> tRect.play()),
+        	    new KeyFrame(Duration.seconds(0), event -> tText.play()),
+        	    new KeyFrame(Duration.seconds(1), event -> tRect.pause()),
+        	    new KeyFrame(Duration.seconds(1), event -> tText.pause()),
+        	    new KeyFrame(Duration.seconds(4), event -> tRect.play()),
+        	    new KeyFrame(Duration.seconds(4), event -> tText.play())
+        	);
+        	playtime.playFromStart();
+        	
+ 
+        //tRect.play();
+        //tText.play();
+        
+        
+
     }
 }
