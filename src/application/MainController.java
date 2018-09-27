@@ -16,12 +16,14 @@ import com.google.gson.reflect.TypeToken;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
@@ -49,10 +51,13 @@ public class MainController {
     private Rectangle notifRectangle;
     @FXML
     private Label notifText;
+    @FXML
+    private Rectangle windowBar;
 
     
     // List of songs
     private ObservableList<Song> songs = FXCollections.observableArrayList();
+    private ObservableList<Song> songsCopy = FXCollections.observableArrayList();
 
     //Used for adding songs/checking for duplicates
     private Song current;
@@ -61,6 +66,8 @@ public class MainController {
     private TranslateTransition tRect;
     private TranslateTransition tText;
     private Timeline playtime;
+    
+    private double yOffset, xOffset;
 
 
     @FXML
@@ -111,7 +118,7 @@ public class MainController {
         	    new KeyFrame(Duration.seconds(3), event -> tRect.play()),   // Rectangle and label will rise to top
         	    new KeyFrame(Duration.seconds(3), event -> tText.play())
         	);
-
+      
     }
     
     // adds song to list
@@ -123,7 +130,9 @@ public class MainController {
                 if (albumField.getText() != null) {
                     current.setAlbum(albumField.getText().trim());
                 }
-                if ((yearField.getText() != null && isNum(yearField.getText()) || yearField.getText().isEmpty())) {              
+                if ((yearField.getText() != null && isNum(yearField.getText()) || yearField.getText().isEmpty())) {    
+                	
+                	songsCopy.setAll(songs);
                 	current.setYear(yearField.getText().trim());
                     songs.add(current);
                     songTable.setItems(songs);
@@ -176,6 +185,7 @@ public class MainController {
                 
                 if (isNum(yearField.getText()) || yearField.getText().isEmpty()){
 
+                	songsCopy.setAll(songs);
                     current.setYear(yearField.getText().trim());
                     songTable.setItems(songs);
                     songTable.getSortOrder().add(colTitle);
@@ -201,18 +211,41 @@ public class MainController {
 
     // removes song from list
     public void removeSong(ActionEvent e) {
+    	songsCopy.setAll(songs);
         songs.remove(current);
         songTable.setItems(songs);
         songTable.refresh();
         clearFields();
         WriteToJSON();
         songTable.getSelectionModel().selectNext();
+		current = songTable.getSelectionModel().getSelectedItem();
+		if (current != null) {
+			titleField.setText(current.getTitle());
+			artistField.setText(current.getArtist());
+			yearField.setText(current.getYear());
+			albumField.setText(current.getAlbum());
+		}
+        
+        
+        Notification("Song Removed", Color.web("#f44242"));
     }
     
-//    public void undoAction(ActionEvent e) {
-//
-//    }
-//    
+    public void undoAction(ActionEvent e) {
+    	
+    	if (!songs.equals(songsCopy) && !songsCopy.isEmpty()){
+    		songs.setAll(songsCopy);
+        	songTable.setItems(songs);
+        	songTable.refresh();
+        	
+        	Notification("Last Action Reverted", Color.web("#eda634"));
+    	}
+    	else {
+    		Notification("Already performed Undo action", Color.web("#eda634"));
+    	}
+    	
+    	
+    }
+    
     // clears text fields
     private void clearFields() {
         titleField.clear();
