@@ -66,6 +66,8 @@ public class MainController {
     private TranslateTransition tRect;
     private TranslateTransition tText;
     private Timeline playtime;
+    
+    private double yOffset, xOffset;
 
 
     @FXML
