@@ -67,7 +67,7 @@ public class MainController {
     private TranslateTransition tText;
     private Timeline playtime;
     
-    private double yOffset, xOffset;
+    private boolean undoReady = false;
 
 
     @FXML
@@ -125,26 +125,31 @@ public class MainController {
     public void addSong(ActionEvent e) {
         if (!titleField.getText().isEmpty() && !artistField.getText().isEmpty()) {
             
-        	current = new Song(titleField.getText().trim(), artistField.getText().trim());
+            current = new Song(titleField.getText().trim(), artistField.getText().trim());
+            
             if (!isDuplicate(current)) {
                 if (albumField.getText() != null) {
+
                     current.setAlbum(albumField.getText().trim());
                 }
                 if ((yearField.getText() != null && isNum(yearField.getText()) || yearField.getText().isEmpty())) {    
                 	
-                	songsCopy.setAll(songs);
+                    songsCopy.setAll(songs);
+                    undoReady = true;
+
                 	current.setYear(yearField.getText().trim());
                     songs.add(current);
+
                     songTable.setItems(songs);
                     songTable.getSortOrder().add(colTitle);
                     songTable.getSortOrder().add(colArtist);
                     songTable.getSelectionModel().select(current);
-//                    clearFields();
-        
+
                     Gson gson = new Gson();
                     String jsonText = gson.toJson(songs);
                     System.out.println(jsonText);
                     WriteToJSON();
+
                     Notification("Song Added", Color.web("#10d354"));
                     }
                 else {
@@ -179,13 +184,15 @@ public class MainController {
 
             // It is then checked if it is a duplicate, if not, it will proceed the update
             if (!isDuplicate(updatedSong) || (updatedSong.getTitle().equalsIgnoreCase(current.getTitle()) && updatedSong.getArtist().equalsIgnoreCase(current.getArtist()))) {
+                songsCopy.setAll(songs);
+                undoReady = true;
+
                 current.setTitle(titleField.getText().trim());
                 current.setArtist(artistField.getText().trim());
                 current.setAlbum(albumField.getText().trim());
                 
                 if (isNum(yearField.getText()) || yearField.getText().isEmpty()){
 
-                	songsCopy.setAll(songs);
                     current.setYear(yearField.getText().trim());
                     songTable.setItems(songs);
                     songTable.getSortOrder().add(colTitle);
@@ -211,14 +218,20 @@ public class MainController {
 
     // removes song from list
     public void removeSong(ActionEvent e) {
-    	songsCopy.setAll(songs);
+        songsCopy.setAll(songs);
+        undoReady = true;
+
         songs.remove(current);
+
         songTable.setItems(songs);
         songTable.refresh();
+
         clearFields();
         WriteToJSON();
+
         songTable.getSelectionModel().selectNext();
-		current = songTable.getSelectionModel().getSelectedItem();
+        current = songTable.getSelectionModel().getSelectedItem();
+        
 		if (current != null) {
 			titleField.setText(current.getTitle());
 			artistField.setText(current.getArtist());
@@ -232,12 +245,14 @@ public class MainController {
     
     public void undoAction(ActionEvent e) {
     	
-    	if (!songs.equals(songsCopy) && !songsCopy.isEmpty()){
+    	if (undoReady){
     		songs.setAll(songsCopy);
-        	songTable.setItems(songs);
+        	songTable.setItems(songsCopy);
         	songTable.refresh();
         	
-        	Notification("Last Action Reverted", Color.web("#eda634"));
+            Notification("Last Action Reverted", Color.web("#eda634"));
+
+            undoReady = false;
     	}
     	else {
     		Notification("Already performed Undo action", Color.web("#eda634"));
