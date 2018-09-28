@@ -29,7 +29,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import javafx.animation.*;
 
-
 public class MainController {
     @FXML
     private TextField titleField;
@@ -54,21 +53,19 @@ public class MainController {
     @FXML
     private Rectangle windowBar;
 
-    
     // List of songs
     private ObservableList<Song> songs = FXCollections.observableArrayList();
     private ObservableList<Song> songsCopy = FXCollections.observableArrayList();
 
-    //Used for adding songs/checking for duplicates
+    // Used for adding songs/checking for duplicates
     private Song current;
 
     // controls used for animations
     private TranslateTransition tRect;
     private TranslateTransition tText;
     private Timeline playtime;
-    
-    private boolean undoReady = false;
 
+    private boolean undoReady = false;
 
     @FXML
     public void initialize() {
@@ -88,7 +85,7 @@ public class MainController {
                 albumField.setText(current.getAlbum());
             }
         });
-        
+
         // Read from JSON and sort songs in table
         ReadFromJSON();
         songTable.setItems(songs);
@@ -108,36 +105,35 @@ public class MainController {
         tText.setToY(30);
         tText.setCycleCount(2);
         tText.setAutoReverse(true);
-        
-        // Timeline for timing of drop down notification 
-        playtime = new Timeline(
-        	    new KeyFrame(Duration.seconds(0), event -> tRect.play()),
-        	    new KeyFrame(Duration.seconds(0), event -> tText.play()),
-        	    new KeyFrame(Duration.seconds(.6), event -> tRect.pause()), // Rectangle and label will stop at bottom of drop
-        	    new KeyFrame(Duration.seconds(.6), event -> tText.pause()),
-        	    new KeyFrame(Duration.seconds(3), event -> tRect.play()),   // Rectangle and label will rise to top
-        	    new KeyFrame(Duration.seconds(3), event -> tText.play())
-        	);
-      
+
+        // Timeline for timing of drop down notification
+        playtime = new Timeline(new KeyFrame(Duration.seconds(0), event -> tRect.play()),
+                new KeyFrame(Duration.seconds(0), event -> tText.play()),
+                new KeyFrame(Duration.seconds(.6), event -> tRect.pause()), // Rectangle and label will stop at bottom
+                                                                            // of drop
+                new KeyFrame(Duration.seconds(.6), event -> tText.pause()),
+                new KeyFrame(Duration.seconds(3), event -> tRect.play()), // Rectangle and label will rise to top
+                new KeyFrame(Duration.seconds(3), event -> tText.play()));
+
     }
-    
+
     // adds song to list
     public void addSong(ActionEvent e) {
         if (!titleField.getText().isEmpty() && !artistField.getText().isEmpty()) {
-            
+
             current = new Song(titleField.getText().trim(), artistField.getText().trim());
-            
+
             if (!isDuplicate(current)) {
                 if (albumField.getText() != null) {
 
                     current.setAlbum(albumField.getText().trim());
                 }
-                if ((yearField.getText() != null && isNum(yearField.getText()) || yearField.getText().isEmpty())) {    
-                	
+                if ((yearField.getText() != null && isNum(yearField.getText()) || yearField.getText().isEmpty())) {
+
                     songsCopy.setAll(songs);
                     undoReady = true;
 
-                	current.setYear(yearField.getText().trim());
+                    current.setYear(yearField.getText().trim());
                     songs.add(current);
 
                     songTable.setItems(songs);
@@ -151,116 +147,116 @@ public class MainController {
                     WriteToJSON();
 
                     Notification("Song Added", Color.web("#10d354"));
-                    }
-                else {
+                } else {
                     Notification("Invalid Year", Color.web("#eda634"));
                     yearField.clear();
                 }
-            }
-            else {
-            	yearField.clear();
-            	albumField.clear();
+            } else {
+                yearField.clear();
+                albumField.clear();
                 Notification("Song is already in your library", Color.web("#eda634"));
             }
-        }
-        else
-            Notification("No Title or Artist entered", Color.web("#eda634"));  
+        } else
+            Notification("No Title or Artist entered", Color.web("#eda634"));
     }
+
     // updates currently selected song
     public void updateSong(ActionEvent e) {
-    	if (songTable.getSelectionModel().getSelectedItem() == null)
-    	{
-    		Notification("No song selected to update", Color.web("#eda634"));
-    	}
-    	else if (titleField.getText().isEmpty() || artistField.getText().isEmpty()) {
-    		Notification("Cannot delete a title or artist field", Color.web("#eda634"));
-    		titleField.setText(current.getTitle());
-    		artistField.setText(current.getArtist());
-    	}
-    	else
-    	{
-    		// updatedSong will hold the values in Artist and Title fields
+        if (songTable.getSelectionModel().getSelectedItem() == null) {
+            Notification("No song selected to update", Color.web("#eda634"));
+        } 
+        else if (titleField.getText().isEmpty() || artistField.getText().isEmpty()) {
+            Notification("Cannot delete a title or artist field", Color.web("#eda634"));
+            titleField.setText(current.getTitle());
+            artistField.setText(current.getArtist());
+        } 
+        else {
+            // updatedSong will hold the values in Artist and Title fields
             Song updatedSong = new Song(titleField.getText(), artistField.getText());
 
             // It is then checked if it is a duplicate, if not, it will proceed the update
-            if (!isDuplicate(updatedSong) || (updatedSong.getTitle().equalsIgnoreCase(current.getTitle()) && updatedSong.getArtist().equalsIgnoreCase(current.getArtist()))) {
-                songsCopy.setAll(songs);
+            if (!isDuplicate(updatedSong) || (updatedSong.getTitle().equalsIgnoreCase(current.getTitle())
+                    && updatedSong.getArtist().equalsIgnoreCase(current.getArtist()))) {
+
+                songsCopy.clear();
+                for (Song s : songs){
+                    songsCopy.add(deepCopy(s));
+                }
                 undoReady = true;
 
                 current.setTitle(titleField.getText().trim());
                 current.setArtist(artistField.getText().trim());
                 current.setAlbum(albumField.getText().trim());
-                
-                if (isNum(yearField.getText()) || yearField.getText().isEmpty()){
+
+                if (isNum(yearField.getText()) || yearField.getText().isEmpty()) {
 
                     current.setYear(yearField.getText().trim());
                     songTable.setItems(songs);
                     songTable.getSortOrder().add(colTitle);
                     songTable.getSortOrder().add(colArtist);
-                    
                     songTable.refresh();
+
                     WriteToJSON();
                     Notification("Song details updated", Color.web("#10d354"));
-                }
-                else{
+                } else {
                     if (current.getYear() != null)
-                    	yearField.setText(current.getYear());
+                        yearField.setText(current.getYear());
                     else
-                    	yearField.clear();
+                        yearField.clear();
                     Notification("Invalid year", Color.web("#eda634"));
                 }
-            }
-            else{
+            } else {
                 Notification("Cannot Update, song is already in your library", Color.web("#eda634"));
             }
-    	}
+        }
     }
 
     // removes song from list
     public void removeSong(ActionEvent e) {
-        songsCopy.setAll(songs);
-        undoReady = true;
+        if (current != null) {
 
-        songs.remove(current);
+            songsCopy.setAll(songs);
+            undoReady = true;
 
-        songTable.setItems(songs);
-        songTable.refresh();
+            songs.remove(current);
 
-        clearFields();
-        WriteToJSON();
+            songTable.setItems(songs);
+            songTable.refresh();
 
-        songTable.getSelectionModel().selectNext();
-        current = songTable.getSelectionModel().getSelectedItem();
-        
-		if (current != null) {
-			titleField.setText(current.getTitle());
-			artistField.setText(current.getArtist());
-			yearField.setText(current.getYear());
-			albumField.setText(current.getAlbum());
-		}
-        
-        
-        Notification("Song Removed", Color.web("#f44242"));
+            clearFields();
+            WriteToJSON();
+
+            songTable.getSelectionModel().selectNext();
+            current = songTable.getSelectionModel().getSelectedItem();
+            Notification("Song Removed", Color.web("#f44242"));
+        } else {
+            Notification("No song to remove", Color.web("#eda634"));
+        }
+
+        if (current != null) {
+            titleField.setText(current.getTitle());
+            artistField.setText(current.getArtist());
+            yearField.setText(current.getYear());
+            albumField.setText(current.getAlbum());
+        }
     }
-    
+
     public void undoAction(ActionEvent e) {
-    	
-    	if (undoReady){
-    		songs.setAll(songsCopy);
-        	songTable.setItems(songsCopy);
-        	songTable.refresh();
-        	
+
+        if (undoReady) {
+            songs.setAll(songsCopy);
+            songTable.setItems(songsCopy);
+            songTable.refresh();
+            songTable.getSelectionModel().selectFirst();
             Notification("Last Action Reverted", Color.web("#eda634"));
 
             undoReady = false;
-    	}
-    	else {
-    		Notification("Already performed Undo action", Color.web("#eda634"));
-    	}
-    	
-    	
+        } else {
+            Notification("Already performed Undo action", Color.web("#eda634"));
+        }
+
     }
-    
+
     // clears text fields
     private void clearFields() {
         titleField.clear();
@@ -272,10 +268,10 @@ public class MainController {
     // Checks if argument is a number
     private boolean isNum(String str) {
         try {
-            Integer.parseInt(str);  // testing if number
+            Integer.parseInt(str); // testing if number
             return true;
         } catch (NumberFormatException nfe) {
-            return false;           // invalid number (or year in this case)
+            return false; // invalid number (or year in this case)
         }
     }
 
@@ -288,34 +284,33 @@ public class MainController {
         }
         return false;
     }
-    
-    public void WriteToJSON(){
 
-    	try (Writer writer = new FileWriter("Songs.json")) {
-    		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    		gson.toJson(songs, writer);
-    	}
-    	catch(Exception e){
-    		System.out.println("Could not write JSON LOL!");
-    	}
+    public void WriteToJSON() {
+
+        try (Writer writer = new FileWriter("Songs.json")) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(songs, writer);
+        } catch (Exception e) {
+            System.out.println("Could not write JSON LOL!");
+        }
 
     }
 
-    public void ReadFromJSON(){
-        try(Reader reader = new FileReader("Songs.json")){
+    public void ReadFromJSON() {
+        try (Reader reader = new FileReader("Songs.json")) {
             List<Song> listOfSongs;
 
             Gson gson = new Gson();
-            listOfSongs = gson.fromJson(reader, new TypeToken<List<Song>>(){}.getType());
+            listOfSongs = gson.fromJson(reader, new TypeToken<List<Song>>() {
+            }.getType());
             ObservableList<Song> asList = FXCollections.observableArrayList(listOfSongs);
             songs = asList;
-        }
-        catch(Exception noFile){
+        } catch (Exception noFile) {
             System.out.println(noFile);
         }
     }
 
-    //Error animation
+    // Error animation
     public void Notification(String msg, Color color) {
 
         notifRectangle.setFill(color);
@@ -324,5 +319,15 @@ public class MainController {
         tRect.stop();
         tText.stop();
         playtime.playFromStart();
+    }
+
+    public Song deepCopy(Song input){
+        Song copy = new Song();
+        copy.setArtist(input.getArtist());//.. copy primitives, deep copy objects again
+        copy.setTitle(input.getTitle());
+        copy.setYear(input.getYear());
+        copy.setAlbum(input.getAlbum());
+    
+        return copy;
     }
 }

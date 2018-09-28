@@ -12,6 +12,9 @@ public class Song{
         this.artist = artist;
     }
 
+    public Song(){
+    }
+
     public String getTitle(){
         return title;
     }
