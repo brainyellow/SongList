@@ -9,7 +9,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<Pane prefHeight="439.0" prefWidth="580.0" style="-fx-background-color: #222;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
+<Pane prefHeight="439.0" prefWidth="580.0" style="-fx-background-color: #222;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
    <children>
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#171717" height="119.0" layoutY="319.0" stroke="TRANSPARENT" strokeType="INSIDE" width="580.0" />
       <Label layoutX="33.0" layoutY="329.0" text="Title" textFill="WHITE" />
