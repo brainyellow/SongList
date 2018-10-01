@@ -20,6 +20,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Button;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -50,11 +51,14 @@ public class MainController {
     @FXML
     private Rectangle windowBar;
 
+    @FXML
+    private Button undoButton;
+
     // List of songs
     private ObservableList<Song> songs = FXCollections.observableArrayList();
     private ObservableList<Song> songsCopy = FXCollections.observableArrayList();
 
-    // Used for adding songs/checking for duplicates
+    // Used for adding songs/checking for duplicates, variable current (Song) will change according to what song is selected in the table
     private Song current;
 
     // controls used for animations
@@ -63,6 +67,12 @@ public class MainController {
     private Timeline playtime;
 
     private boolean undoReady = false;
+
+    // Web color strings, used for our notification system
+    private final String NotifyGreen = "#10d354";       // Green  - indicates successful action
+    private final String NotifyOrange = "#eda634";      // Orange - indicates a problem with an action
+    private final String NotifyRed = "#f44242";         // Red    - indicates removal of a song
+
 
     @FXML
     public void initialize() {
@@ -92,10 +102,10 @@ public class MainController {
         songTable.getSelectionModel().selectFirst();
 
         // Initialize notification animations
-        tRect = new TranslateTransition(Duration.millis(600), notifRectangle);
-        tRect.setFromY(0);
-        tRect.setToY(30);
-        tRect.setCycleCount(2);
+        tRect = new TranslateTransition(Duration.millis(600), notifRectangle);  // animation for rectange (600ms)
+        tRect.setFromY(0);          
+        tRect.setToY(30);               // drop down 30 pixels
+        tRect.setCycleCount(2);         // will reverse one time (for it to rise up)
         tRect.setAutoReverse(true);
         tText = new TranslateTransition(Duration.millis(600), notifText);
         tText.setFromY(0);
@@ -106,104 +116,108 @@ public class MainController {
         // Timeline for timing of drop down notification
         playtime = new Timeline(new KeyFrame(Duration.seconds(0), event -> tRect.play()),
                 new KeyFrame(Duration.seconds(0), event -> tText.play()),
-                new KeyFrame(Duration.seconds(.6), event -> tRect.pause()), // Rectangle and label will stop at bottom
-                                                                            // of drop
+                new KeyFrame(Duration.seconds(.6), event -> tRect.pause()),     // Rectangle and label will stop at bottom of drop
                 new KeyFrame(Duration.seconds(.6), event -> tText.pause()),
-                new KeyFrame(Duration.seconds(3), event -> tRect.play()), // Rectangle and label will rise to top
-                new KeyFrame(Duration.seconds(3), event -> tText.play()));
+                                                                                // We intend to give the user 3 seconds to read notification ( .6sec -> 3.6sec )
+                new KeyFrame(Duration.seconds(3.6), event -> tRect.play()), 
+                new KeyFrame(Duration.seconds(3.6), event -> tText.play()));    // Rectangle and label will rise to top
 
     }
 
-    // adds song to list
+    // Method to add song to list
     public void addSong(ActionEvent e) {
-        if (!titleField.getText().isEmpty() && !artistField.getText().isEmpty()) {
+        if (!titleField.getText().isEmpty() && !artistField.getText().isEmpty()) {  // if both fields contain text
 
+            // current used as a holder for potential new song
             current = new Song(titleField.getText().trim(), artistField.getText().trim());
 
             if (!isDuplicate(current)) {
-                if (albumField.getText() != null) {
+                //check if current is not part of library
 
-                    current.setAlbum(albumField.getText().trim());
-                }
-                if ((yearField.getText() != null && isNum(yearField.getText()) || yearField.getText().isEmpty())) {
+                current.setAlbum(albumField.getText().trim());
 
+                if ((isNum(yearField.getText()) || yearField.getText().isEmpty())) {     //if year field is blank or is a number 
+
+                    // setting undo state in songsCopy
                     songsCopy.setAll(songs);
                     undoReady = true;
+                    undoButton.setDisable(false);
 
+                    // Setting year in new potential song
                     current.setYear(yearField.getText().trim());
+                    // Add song into current list of songs
                     songs.add(current);
 
-                    songTable.setItems(songs);
-                    songTable.getSortOrder().add(colTitle);
-                    songTable.getSortOrder().add(colArtist);
+                    // Refreshing and resorting table
+                    RefreshSongs();
                     songTable.getSelectionModel().select(current);
 
-                    Gson gson = new Gson();
-                    String jsonText = gson.toJson(songs);
-                    System.out.println(jsonText);
-                    WriteToJSON();
+                    // Showing custom notification for success
+                    Notification("Song Added", Color.web(NotifyGreen));
 
-                    Notification("Song Added", Color.web("#10d354"));
-                } else {
-                    Notification("Invalid Year", Color.web("#eda634"));
+                } else {    // If year isn't a valid number, show notificatoin and clear year field
+                    Notification("Invalid Year", Color.web(NotifyOrange));
                     yearField.clear();
                 }
-            } else {
-                yearField.clear();
-                albumField.clear();
-                Notification("Song is already in your library", Color.web("#eda634"));
+            } else {  // if potential song would be a duplicate
+                Notification("Song is already in your library", Color.web(NotifyOrange));
             }
-        } else
-            Notification("No Title or Artist entered", Color.web("#eda634"));
+        } else  // if a song or artist field is blank, cannot add to library since requirements are not met
+            Notification("No Title or Artist entered", Color.web(NotifyOrange));   // Display notification to show problem
     }
 
-    // updates currently selected song
+    // Method for updating song
     public void updateSong(ActionEvent e) {
-        if (songTable.getSelectionModel().getSelectedItem() == null) {
-            Notification("No song selected to update", Color.web("#eda634"));
+
+        if (songTable.getSelectionModel().getSelectedItem() == null) {          // if no song is selected in the table (shouldn't be possible but just in case)
+            Notification("No song selected to update", Color.web(NotifyOrange));
         } 
-        else if (titleField.getText().isEmpty() || artistField.getText().isEmpty()) {
-            Notification("Cannot delete a title or artist field", Color.web("#eda634"));
+        else if (titleField.getText().isEmpty() || artistField.getText().isEmpty()) {       // if user tries to delete a song's title or artist
+            Notification("Cannot delete a title or artist field", Color.web(NotifyOrange));
             titleField.setText(current.getTitle());
             artistField.setText(current.getArtist());
         } 
         else {
-            // updatedSong will hold the values in Artist and Title fields
+            // updatedSong (Song object) will hold the values in Artist and Title fields
             Song updatedSong = new Song(titleField.getText(), artistField.getText());
 
             // It is then checked if it is a duplicate, if not, it will proceed the update
             if (!isDuplicate(updatedSong) || (updatedSong.getTitle().equalsIgnoreCase(current.getTitle())
                     && updatedSong.getArtist().equalsIgnoreCase(current.getArtist()))) {
 
+ 
+                // Will replace every song in the copy list to the current list
+                // (Updating an attribute of a song and then replacing with the copy list (an undo action) had no result, going through and making a true copy of each
+                // song in the list was the only solution we could come to for our undo action to work)
                 songsCopy.clear();
                 for (Song s : songs){
-                    songsCopy.add(deepCopy(s));
+                    songsCopy.add(new Song(s.getTitle(), s.getArtist(), s.getYear(), s.getAlbum() ));
                 }
                 undoReady = true;
+                undoButton.setDisable(false);
 
+
+                // Changing attributes of currently selected song to what the user has in the respected fields
                 current.setTitle(titleField.getText().trim());
                 current.setArtist(artistField.getText().trim());
                 current.setAlbum(albumField.getText().trim());
 
-                if (isNum(yearField.getText()) || yearField.getText().isEmpty()) {
+                if (isNum(yearField.getText()) || yearField.getText().isEmpty()) {      // if text in year field is a number, or is blank, proceed with update
 
                     current.setYear(yearField.getText().trim());
-                    songTable.setItems(songs);
-                    songTable.getSortOrder().add(colTitle);
-                    songTable.getSortOrder().add(colArtist);
-                    songTable.refresh();
 
-                    WriteToJSON();
-                    Notification("Song details updated", Color.web("#10d354"));
-                } else {
-                    if (current.getYear() != null)
-                        yearField.setText(current.getYear());
-                    else
-                        yearField.clear();
-                    Notification("Invalid year", Color.web("#eda634"));
+                    RefreshSongs();
+
+                    Notification("Song details updated", Color.web(NotifyGreen));
+                } else {  
+                    // if user's year field is invalid, other attributes will be updated but year will update to blank
+                    
+                    yearField.clear();
+                    RefreshSongs();
+                    Notification("Song details updated, however year was invalid", Color.web(NotifyOrange));
                 }
-            } else {
-                Notification("Cannot Update, song is already in your library", Color.web("#eda634"));
+            } else {       // if users updated title and artist field matches a different song in library
+                Notification("Cannot Update, song is already in your library", Color.web(NotifyOrange));
             }
         }
     }
@@ -214,20 +228,19 @@ public class MainController {
 
             songsCopy.setAll(songs);
             undoReady = true;
+            undoButton.setDisable(false);
 
             songs.remove(current);
 
-            songTable.setItems(songs);
-            songTable.refresh();
-
+            RefreshSongs();
             clearFields();
-            WriteToJSON();
 
             songTable.getSelectionModel().selectNext();
             current = songTable.getSelectionModel().getSelectedItem();
-            Notification("Song Removed", Color.web("#f44242"));
+
+            Notification("Song Removed", Color.web(NotifyRed));
         } else {
-            Notification("No song to remove", Color.web("#eda634"));
+            Notification("No song to remove", Color.web(NotifyOrange));
         }
 
         if (current != null) {
@@ -241,15 +254,19 @@ public class MainController {
     public void undoAction(ActionEvent e) {
 
         if (undoReady) {
-            songs.setAll(songsCopy);
-            songTable.setItems(songsCopy);
-            songTable.refresh();
+
+            songs.clear();
+            for (Song s: songsCopy)
+                songs.add(new Song(s.getTitle(), s.getArtist(), s.getYear(), s.getAlbum()));
+
+            RefreshSongs();
             songTable.getSelectionModel().selectFirst();
-            Notification("Last Action Reverted", Color.web("#eda634"));
+            Notification("Last Action Reverted", Color.web(NotifyGreen));
 
             undoReady = false;
+            undoButton.setDisable(true);
         } else {
-            Notification("Already performed Undo action", Color.web("#eda634"));
+            Notification("Already performed Undo action", Color.web(NotifyOrange));
         }
 
     }
@@ -288,7 +305,7 @@ public class MainController {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(songs, writer);
         } catch (Exception e) {
-            System.out.println("Could not write JSON LOL!");
+            System.out.println("Could not make JSON file");
         }
 
     }
@@ -307,24 +324,24 @@ public class MainController {
         }
     }
 
-    // Error animation
+    // Notification animation method, with the arguments color and message for the notification to display
     public void Notification(String msg, Color color) {
 
         notifRectangle.setFill(color);
         notifText.setText(msg);
 
-        tRect.stop();
-        tText.stop();
+        tRect.stop();       // stop commands, incase a notification is already showing, a new notification will start with the latest 
+        tText.stop();       // action performed for better responsiveness for the user
         playtime.playFromStart();
     }
 
-    public Song deepCopy(Song input){
-        Song copy = new Song();
-        copy.setArtist(input.getArtist());//.. copy primitives, deep copy objects again
-        copy.setTitle(input.getTitle());
-        copy.setYear(input.getYear());
-        copy.setAlbum(input.getAlbum());
-    
-        return copy;
+    // Method used for when a user action is successful, will refresh table with most recent songs and write to json
+    public void RefreshSongs(){     
+        songTable.setItems(songs);
+        songTable.getSortOrder().add(colTitle);
+        songTable.getSortOrder().add(colArtist);
+        songTable.refresh();
+
+        WriteToJSON();
     }
 }

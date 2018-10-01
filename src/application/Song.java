@@ -12,7 +12,11 @@ public class Song{
         this.artist = artist;
     }
 
-    public Song(){
+    public Song(String title, String artist, String year, String album){
+        this.title = title;
+        this.artist = artist;
+        this.year = year;
+        this.album = album;
     }
 
     public String getTitle(){
