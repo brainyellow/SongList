@@ -129,11 +129,11 @@ public class MainController {
         if (!titleField.getText().isEmpty() && !artistField.getText().isEmpty()) {  // if both fields contain text
 
             // current used as a holder for potential new song
-            current = new Song(titleField.getText().trim(), artistField.getText().trim());
+            Song dupCheck = new Song(titleField.getText().trim(), artistField.getText().trim());
 
-            if (!isDuplicate(current)) {
+            if (!isDuplicate(dupCheck)) {
                 //check if current is not part of library
-
+                current = dupCheck;
                 current.setAlbum(albumField.getText().trim());
 
                 if ((isNum(yearField.getText()) || yearField.getText().isEmpty())) {     //if year field is blank or is a number 
@@ -155,7 +155,7 @@ public class MainController {
                     // Showing custom notification for success
                     Notification("Song Added", Color.web(NotifyGreen));
 
-                } else {    // If year isn't a valid number, show notificatoin and clear year field
+                } else {    // If year isn't a valid number, show notification and clear year field
                     Notification("Invalid Year", Color.web(NotifyOrange));
                     yearField.clear();
                 }
@@ -229,14 +229,13 @@ public class MainController {
             songsCopy.setAll(songs);
             undoReady = true;
             undoButton.setDisable(false);
-
             songs.remove(current);
 
             RefreshSongs();
-            clearFields();
-
             songTable.getSelectionModel().selectNext();
             current = songTable.getSelectionModel().getSelectedItem();
+            clearFields();
+
 
             Notification("Song Removed", Color.web(NotifyRed));
         } else {
@@ -254,19 +253,33 @@ public class MainController {
     public void undoAction(ActionEvent e) {
 
         if (undoReady) {
-
             songs.clear();
-            for (Song s: songsCopy)
-                songs.add(new Song(s.getTitle(), s.getArtist(), s.getYear(), s.getAlbum()));
+            Song toCopy;
+            for (Song s: songsCopy) {
+                toCopy = new Song(s.getTitle(), s.getArtist(), s.getYear(), s.getAlbum());
+                songs.add(toCopy);
+            }
 
             RefreshSongs();
             songTable.getSelectionModel().selectFirst();
+            current = songTable.getSelectionModel().getSelectedItem();
+            if (current != null) {
+                titleField.setText(current.getTitle());
+                artistField.setText(current.getArtist());
+                yearField.setText(current.getYear());
+                albumField.setText(current.getAlbum());
+            }
             Notification("Last Action Reverted", Color.web(NotifyGreen));
 
             undoReady = false;
             undoButton.setDisable(true);
+            if (songsCopy.size() <= 0) {
+                clearFields();
+                current = null;
+            }
         } else {
-            Notification("Already performed Undo action", Color.web(NotifyOrange));
+            Notification("Undo failed", Color.web(NotifyOrange));
+            clearFields();
         }
 
     }
