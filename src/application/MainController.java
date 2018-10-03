@@ -73,6 +73,8 @@ public class MainController {
     private final String NotifyOrange = "#eda634";      // Orange - indicates a problem with an action
     private final String NotifyRed = "#f44242";         // Red    - indicates removal of a song
 
+    private int selectIndex;
+
 
     @FXML
     public void initialize() {
@@ -128,7 +130,7 @@ public class MainController {
     public void addSong(ActionEvent e) {
         if (!titleField.getText().isEmpty() && !artistField.getText().isEmpty()) {  // if both fields contain text
 
-            // current used as a holder for potential new song
+            // dupCheck holds title and artist 
             Song dupCheck = new Song(titleField.getText().trim(), artistField.getText().trim());
 
             if (!isDuplicate(dupCheck)) {
@@ -202,18 +204,24 @@ public class MainController {
                 current.setArtist(artistField.getText().trim());
                 current.setAlbum(albumField.getText().trim());
 
+
+
                 if (isNum(yearField.getText()) || yearField.getText().isEmpty()) {      // if text in year field is a number, or is blank, proceed with update
 
                     current.setYear(yearField.getText().trim());
 
                     RefreshSongs();
+                    selectIndex = songTable.getSelectionModel().getSelectedIndex();
 
                     Notification("Song details updated", Color.web(NotifyGreen));
                 } else {  
                     // if user's year field is invalid, other attributes will be updated but year will update to blank
                     
                     yearField.clear();
+                    
                     RefreshSongs();
+                    selectIndex = songTable.getSelectionModel().getSelectedIndex();
+
                     Notification("Song details updated, however year was invalid", Color.web(NotifyOrange));
                 }
             } else {       // if users updated title and artist field matches a different song in library
@@ -229,13 +237,16 @@ public class MainController {
             songsCopy.setAll(songs);
             undoReady = true;
             undoButton.setDisable(false);
+            selectIndex = songTable.getSelectionModel().getSelectedIndex();
             songs.remove(current);
+            current = null;
+
+            System.out.println("INDEX: "+selectIndex);
+            songTable.getSelectionModel().select(selectIndex);
+            current = songTable.getSelectionModel().getSelectedItem();
 
             RefreshSongs();
-            songTable.getSelectionModel().selectNext();
-            current = songTable.getSelectionModel().getSelectedItem();
             clearFields();
-
 
             Notification("Song Removed", Color.web(NotifyRed));
         } else {
@@ -261,7 +272,7 @@ public class MainController {
             }
 
             RefreshSongs();
-            songTable.getSelectionModel().selectFirst();
+            songTable.getSelectionModel().select(selectIndex);
             current = songTable.getSelectionModel().getSelectedItem();
             if (current != null) {
                 titleField.setText(current.getTitle());

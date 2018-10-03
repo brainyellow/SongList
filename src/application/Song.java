@@ -1,5 +1,6 @@
 // Brian Huang
 // Tyler Latawiec
+
 package application;
 
 public class Song{
