@@ -218,7 +218,7 @@ public class MainController {
                     // if user's year field is invalid, other attributes will be updated but year will update to blank
                     
                     yearField.clear();
-                    
+
                     RefreshSongs();
                     selectIndex = songTable.getSelectionModel().getSelectedIndex();
 
@@ -241,7 +241,6 @@ public class MainController {
             songs.remove(current);
             current = null;
 
-            System.out.println("INDEX: "+selectIndex);
             songTable.getSelectionModel().select(selectIndex);
             current = songTable.getSelectionModel().getSelectedItem();
 
@@ -265,11 +264,8 @@ public class MainController {
 
         if (undoReady) {
             songs.clear();
-            Song toCopy;
-            for (Song s: songsCopy) {
-                toCopy = new Song(s.getTitle(), s.getArtist(), s.getYear(), s.getAlbum());
-                songs.add(toCopy);
-            }
+            for (Song s: songsCopy) 
+                songs.add(new Song(s.getTitle(), s.getArtist(), s.getYear(), s.getAlbum()));
 
             RefreshSongs();
             songTable.getSelectionModel().select(selectIndex);
@@ -339,8 +335,7 @@ public class MainController {
             List<Song> listOfSongs;
 
             Gson gson = new Gson();
-            listOfSongs = gson.fromJson(reader, new TypeToken<List<Song>>() {
-            }.getType());
+            listOfSongs = gson.fromJson(reader, new TypeToken<List<Song>>() {}.getType());
             ObservableList<Song> asList = FXCollections.observableArrayList(listOfSongs);
             songs = asList;
         } catch (Exception noFile) {
